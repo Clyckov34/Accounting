@@ -1,0 +1,34 @@
+{{ template "header.html"}}
+
+
+    <title>{{ .title }}</title>
+</head>
+<body>
+<div class="info">
+    <h1>НЕ Забудь включить БД</h1>
+    <h1>Вход в Аккаунт</h1>
+</div>
+
+
+<div class="block-center">
+    {{ if .login }}
+        <div class="forma">
+            <p><a href="/account/user">Войти</a></p>
+        </div>
+    {{ else }}
+        <div class="forma">
+            <form action="/account" method="POST">
+                <p><input type="text" name="login" placeholder="Login: admin"></p>
+                <p><input type="password" name="password" placeholder="Password: admin24"></p>
+                <div class="submit">
+                    <input type="submit" value="Авторизация">
+                    <input type="reset" value="Очистить">
+                </div>
+            </form>
+        </div>
+    {{ end }}
+</div>
+
+
+
+{{ template "footer.html"}}

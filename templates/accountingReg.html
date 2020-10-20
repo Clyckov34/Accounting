@@ -1,0 +1,29 @@
+{{ template "header.html"}}
+
+
+<title>{{ .title }}</title>
+</head>
+<body>
+<div class="info">
+    <h1>Регистрация</h1>
+</div>
+
+
+<div class="block-center">
+    <div class="forma">
+        <form action="/accountreg" method="POST">
+            <p><input type="text" name="login" placeholder="Login: admin"></p>
+            <p><input type="password" name="password" placeholder="Password: admin24"></p>
+            <p><input type="tel" name="phone" minlength="11" maxlength="11" placeholder="Номер телефона: 79963567212"></p>
+            <p><input type="number" name="year" min="1" placeholder="Сколько лет: 24"></p>
+            <div class="submit">
+                <input type="submit" value="Регистрация">
+                <input type="reset" value="Очистить">
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+{{ template "footer.html"}}

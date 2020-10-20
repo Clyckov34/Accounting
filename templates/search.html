@@ -1,0 +1,26 @@
+{{ template "header.html"}}
+
+
+    <title>{{ .title }}</title>
+</head>
+<body>
+
+<div class="info">
+    <h1>Поиск</h1>
+</div>
+
+
+<div class="block-center">
+    <div class="forma">
+        <form action="/data" method="GET">
+            <p><input type="text" name="data" placeholder="Поиск: admin"></p>
+            <div class="submit">
+                <input type="submit" value="Найти">
+                <input type="reset" value="Очистить">
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{{ template "footer.html"}}
