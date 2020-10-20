@@ -4,7 +4,6 @@ type DataAccount struct { // Для авторизации
 	id       int
 	login    string
 	password string
-	secret 	 string
 }
 
 type DataUser struct { // Для выгрузки данных
@@ -12,7 +11,6 @@ type DataUser struct { // Для выгрузки данных
 	Login  string
 	Phone  string
 	Year   string
-	Secret string
 }
 
 type User struct {	// Для поиска

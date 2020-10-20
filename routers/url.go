@@ -43,9 +43,11 @@ func RouterUrl(engine *gin.Engine){
 			if result != nil {
 				context.Redirect(302, "/")
 			} else {
+				secretSHA512 := models.Sha512()
+
 				session, _ := store.Get(context.Request, "secret")
 				session.Values["login"] = login
-				session.Values["password"] = password
+				session.Values["token"] = secretSHA512
 				_ = session.Save(context.Request, context.Writer)
 
 
@@ -56,7 +58,7 @@ func RouterUrl(engine *gin.Engine){
 		}
 	})
 
-	// Удаление аккаунта
+	// Удаление аккаунта + удаляет session
 	engine.GET("/account/delete/:id", func(context *gin.Context) {
 		delete := context.Param("id")
 
@@ -69,17 +71,43 @@ func RouterUrl(engine *gin.Engine){
 		if err != nil {
 			context.String(200, "Нет такого аккаунта")
 		} else {
-			context.Redirect(302, "/")
+			session, err := store.Get(context.Request, "secret")
+			if err != nil {
+				context.Redirect(302, "/account")
+			}
+
+			_, okLogin := session.Values["login"]
+			_, okToken:= session.Values["token"]
+
+			if okLogin != true && okToken != true {
+				context.Redirect(302, "/account")
+			} else {
+				session.Options.MaxAge = -1
+				_ = session.Save(context.Request, context.Writer)
+
+				context.Redirect(302, "/account")
+			}
 		}
 	})
 
 	// Удаление Session
 	engine.GET("/account/session/delete", func(context *gin.Context) {
-		session, _ := store.Get(context.Request, "secret")
-		session.Options.MaxAge = -1
-		_ = session.Save(context.Request, context.Writer)
+		session, err := store.Get(context.Request, "secret")
+		if err != nil {
+			context.Redirect(302, "/account")
+		}
 
-		context.Redirect(302, "/account")
+		_, okLogin := session.Values["login"]
+		_, okToken:= session.Values["token"]
+
+		if okLogin != true && okToken != true {
+			context.Redirect(302, "/account")
+		} else {
+			session.Options.MaxAge = -1
+			_ = session.Save(context.Request, context.Writer)
+
+			context.Redirect(302, "/account")
+		}
 	})
 
 	// Аккаунт пользователя
@@ -90,9 +118,9 @@ func RouterUrl(engine *gin.Engine){
 		}
 
 		resLogin, okLogin := session.Values["login"]
-		_, okPassword := session.Values["password"]
+		_, okToken := session.Values["token"]
 
-		if okLogin != true && okPassword != true {
+		if okLogin != true && okToken != true {
 			context.Redirect(302, "/account")
 		} else {
 			db := settings.DataBaseOpen() // Подключение к БД
@@ -107,7 +135,6 @@ func RouterUrl(engine *gin.Engine){
 					"login": result.Login,
 					"phone": result.Phone,
 					"year":  result.Year,
-					"secret": result.Secret,
 				})
 			}
 		}
@@ -135,8 +162,7 @@ func RouterUrl(engine *gin.Engine){
 			if err != nil {
 				context.String(200, "Ошибка Хеширование пароля")
 			} else {
-				secret := models.Sha256()
-				_, err = db.Exec("INSERT INTO `people` (`login`, `password`, `secret`) VALUES (?, ?, ?)", login, password, secret)
+				_, err = db.Exec("INSERT INTO `people` (`login`, `password`) VALUES (?, ?)", login, password)
 				_, err = db.Exec("INSERT INTO `dates` (`login`, `phone`, `year`) VALUES (?, ?, ?)", login, phone, year)
 				if err != nil {
 					context.String(200,"Ошибка")
